@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+       background-size: 400% 400%;
+      animation: bgMove 8s ease infinite;
+       display: flex;
+     justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  @keyframes bgMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(120, 80, 255, 0.25) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(0, 200, 255, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+   .calculator  {
+    position: relative;
+    z-index: 1;
+  }
+
+  
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    opacity: 0.15;
+    animation: float linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes float {
+    0%   { transform: translateY(110vh) scale(1); opacity: 0; }
+    10%  { opacity: 0.15; }
+    90%  { opacity: 0.15; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+
+  .calculator {
+    background: #222;
+    border-radius: 16px;
+    padding: 20px;
+    width: 280px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+
+  .display {
+    background: #000;
+    color: #fff;
+    font-size: 36px;
+    text-align: right;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    min-height: 65px;
+    overflow: hidden;
+    word-break: break-all;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  button {
+    padding: 18px 0;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.1s;
+  }
+
+  button:active { opacity: 0.7; }
+
+  .num { background: #444; color: #fff; }
+  .op  { background: #f90; color: #fff; }
+  .ac  { background: #a00; color: #fff; }
+  .eq  { background: #f90; color: #fff; }
+  .zero { grid-column: span 2; }
+</style>
+</head>
+<body>
+
+   <div class="bubble" style="width:80px;height:80px;left:10%;background:#a78bfa;animation-duration:12s;animation-delay:0s"></div>
+   <div class="bubble" style="width:50px;height:50px;left:25%;background:#38bdf8;animation-duration:9s;animation-delay:2s"></div>
+   <div class="bubble" style="width:100px;height:100px;left:50%;background:#818cf8;animation-duration:15s;animation-delay:1s"></div>
+   <div class="bubble" style="width:60px;height:60px;left:70%;background:#34d399;animation-duration:11s;animation-delay:3s"></div>
+   <div class="bubble" style="width:40px;height:40px;left:85%;background:#f472b6;animation-duration:8s;animation-delay:0.5s"></div>
+   <div class="bubble" style="width:70px;height:70px;left:40%;background:#60a5fa;animation-duration:13s;animation-delay:4s"></div>
+
+<div class="calculator">
+  <div class="display" id="display">0</div>
+  <div class="buttons">
+    <button class="ac" colspan="2" onclick="ac()">AC</button>
+    <button class="num" onclick="del()">⌫</button>
+    <button class="op"  onclick="op('÷')">÷</button>
+
+    <button class="num" onclick="num('7')">7</button>
+    <button class="num" onclick="num('8')">8</button>
+    <button class="num" onclick="num('9')">9</button>
+    <button class="op"  onclick="op('×')">×</button>
+
+    <button class="num" onclick="num('4')">4</button>
+    <button class="num" onclick="num('5')">5</button>
+    <button class="num" onclick="num('6')">6</button>
+    <button class="op"  onclick="op('−')">−</button>
+
+    <button class="num" onclick="num('1')">1</button>
+    <button class="num" onclick="num('2')">2</button>
+    <button class="num" onclick="num('3')">3</button>
+    <button class="op"  onclick="op('+')">+</button>
+
+    <button class="num zero" onclick="num('0')">0</button>
+    <button class="num" onclick="dot()">.</button>
+    <button class="eq"  onclick="calc()">=</button>
+  </div>
+</div>
+
+<script>
+  let current = '0', prev = '', operator = '', justCalc = false;
+  const disp = document.getElementById('display');
+
+  function show(v) { disp.textContent = v; }
+
+  function num(d) {
+    if (justCalc) { current = d; justCalc = false; }
+    else current = (current === '0') ? d : current + d;
+    show(current);
+  }
+
+  function dot() {
+    if (justCalc) { current = '0.'; justCalc = false; }
+    else if (!current.includes('.')) current += '.';
+    show(current);
+  }
+
+     function op(o) {
+    prev = current; operator = o; justCalc = true;
+    show(current);
+  }
+
+     function calc() {
+    if (!operator || !prev) return;
+       let a = parseFloat(prev), b = parseFloat(current), r;
+    if (operator === '+') r = a + b;
+      else if (operator === '−') r = a - b;
+      else if (operator === '×') r = a * b;
+    else if (operator === '÷') r = b === 0 ? 'Error' : a / b;
+    current = String(r); operator = ''; prev = ''; justCalc = true;
+    show(current);
+  }
+
+  function ac()  { current = '0'; prev = ''; operator = ''; justCalc = false; show('0'); }
+  function del() { current = current.length > 1 ? current.slice(0,-1) : '0'; show(current); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') num(e.key);
+    else if (e.key === '.') dot();
+    else if (e.key === '+') op('+');
+    else if (e.key === '-') op('−');
+    else if (e.key === '*') op('×');
+    else if (e.key === '/') { e.preventDefault(); op('÷'); }
+    else if (e.key === 'Enter' || e.key === '=') calc();
+    else if (e.key === 'Backspace') del();
+    else if (e.key === 'Escape') ac();
+  });
+</script>
+</body>
+</html>
